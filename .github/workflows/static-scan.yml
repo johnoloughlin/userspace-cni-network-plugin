@@ -38,7 +38,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.18.x
+        go-version: 1.20.x
 
     # if this fails, run go mod tidy
     - name: Check if module files are consistent with code
