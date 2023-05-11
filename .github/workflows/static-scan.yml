@@ -1,7 +1,16 @@
 name: Go-static-analysis
 on: [push, pull_request]
 jobs:
-
+  build:
+    runs-on: ubuntu-latest
+    steps:
+          -
+        name: Build Dockerfile
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/userspacecni/Dockerfile
+          tags: userspacecni:latest
   golangci:
     name: Lint
     runs-on: ubuntu-latest
