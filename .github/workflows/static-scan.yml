@@ -15,14 +15,15 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
+      - name: list the Docker image
+        run: docker image list
       - uses: actions/checkout@v2
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
           # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
           version: v1.52.2
-      - name: list the Docker image
-        run: docker image list
+
 
   shellcheck:
     name: Shellcheck
