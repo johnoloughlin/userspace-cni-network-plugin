@@ -25,6 +25,7 @@ jobs:
           version: v1.52.2
 
 
+
   shellcheck:
     name: Shellcheck
     runs-on: ubuntu-latest
