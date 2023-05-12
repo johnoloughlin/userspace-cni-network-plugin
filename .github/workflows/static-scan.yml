@@ -2,6 +2,13 @@ name: Go-static-analysis
 on: [push, pull_request]
 jobs:
 
+  dockerbuildimage:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: docker build . -f ./docker/userspacecni/Dockerfile . -t userspacecni:$(date +%s)
   golangci:
     name: Lint
     runs-on: ubuntu-latest
