@@ -34,6 +34,7 @@ import (
 
 	"github.com/containernetworking/cni/pkg/skel"
 
+	"github.com/intel/userspace-cni-network-plugin/cnivpp/bin_api/interface_types"
 	"github.com/intel/userspace-cni-network-plugin/pkg/annotations"
 	"github.com/intel/userspace-cni-network-plugin/pkg/configdata"
 	"github.com/intel/userspace-cni-network-plugin/pkg/types"
@@ -51,8 +52,8 @@ const debugVppDb = false
 // This structure is a union of all the VPP data (for all types of
 // interfaces) that need to be preserved for later use.
 type VppSavedData struct {
-	SwIfIndex     uint32 `json:"swIfIndex"`     // Software Index, used to access the created interface, needed to delete interface.
-	MemifSocketId uint32 `json:"memifSocketId"` // Memif SocketId, used to access the created memif Socket File, used for debug only.
+	interfaceSwIfIndex interface_types.InterfaceIndex `json:"swIfIndex"`     // Software Index, used to access the created interface, needed to delete interface.
+	MemifSocketId      uint32                    `json:"memifSocketId"` // Memif SocketId, used to access the created memif Socket File, used for debug only.
 }
 
 //
@@ -83,7 +84,7 @@ func SaveVppConfig(conf *types.NetConf, args *skel.CmdArgs, data *VppSavedData) 
 		path := filepath.Join(localDir, fileName)
 
 		if debugVppDb {
-			fmt.Printf("SAVE FILE: swIfIndex=%d path=%s dataBytes=%s\n", data.SwIfIndex, path, dataBytes)
+			fmt.Printf("SAVE FILE: swIfIndex=%d path=%s dataBytes=%s\n", data.interfaceSwIfIndex, path, dataBytes)
 		}
 		return ioutil.WriteFile(path, dataBytes, 0644)
 	} else {

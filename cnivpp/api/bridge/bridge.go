@@ -17,18 +17,17 @@
 package vppbridge
 
 // Generates Go bindings for all VPP APIs located in the json directory.
-//go:generate go run git.fd.io/govpp.git/cmd/binapi-generator --output-dir=../../bin_api
+//go:generate go run go.fd.io/govpp/cmd/binapi-generator --output-dir=../../bin_api
 
 import (
 	"fmt"
 
-	"git.fd.io/govpp.git/api"
+	"github.com/intel/userspace-cni-network-plugin/cnivpp/bin_api/interface_types"
 	"github.com/intel/userspace-cni-network-plugin/cnivpp/bin_api/l2"
+	"go.fd.io/govpp/api"
 )
 
-//
 // Constants
-//
 const debugBridge = false
 
 //
@@ -49,14 +48,14 @@ func CreateBridge(ch api.Channel, bridgeDomain uint32) error {
 	// Populate the Request Structure
 	req := &l2.BridgeDomainAddDel{
 		BdID:    bridgeDomain,
-		Flood:   1,
-		UuFlood: 1,
-		Forward: 1,
-		Learn:   1,
-		ArpTerm: 0,
+		Flood:   true,
+		UuFlood: true,
+		Forward: true,
+		Learn:   true,
+		ArpTerm: false,
 		MacAge:  0,
 		//BdTag   []byte `struc:"[64]byte"`
-		IsAdd: 1,
+		IsAdd: true,
 	}
 
 	reply := &l2.BridgeDomainAddDelReply{}
@@ -85,7 +84,7 @@ func DeleteBridge(ch api.Channel, bridgeDomain uint32) error {
 	// Populate the Request Structure
 	req := &l2.BridgeDomainAddDel{
 		BdID:  bridgeDomain,
-		IsAdd: 0,
+		IsAdd: false,
 	}
 
 	reply := &l2.BridgeDomainAddDelReply{}
@@ -103,7 +102,7 @@ func DeleteBridge(ch api.Channel, bridgeDomain uint32) error {
 }
 
 // Attempt to add an interface to a Bridge Domain.
-func AddBridgeInterface(ch api.Channel, bridgeDomain uint32, swIfId uint32) error {
+func AddBridgeInterface(ch api.Channel, bridgeDomain uint32, swIfId interface_types.InterfaceIndex) error {
 	var err error
 
 	// Determine if bridge domain exists, and if not, create it. CreateBridge()
@@ -119,7 +118,7 @@ func AddBridgeInterface(ch api.Channel, bridgeDomain uint32, swIfId uint32) erro
 		RxSwIfIndex: swIfId,
 		Shg:         0,
 		PortType:    l2.L2_API_PORT_TYPE_NORMAL,
-		Enable:      1,
+		Enable:      true,
 	}
 
 	reply := &l2.SwInterfaceSetL2BridgeReply{}
@@ -137,7 +136,7 @@ func AddBridgeInterface(ch api.Channel, bridgeDomain uint32, swIfId uint32) erro
 }
 
 // Attempt to remove an interface from a Bridge Domain.
-func RemoveBridgeInterface(ch api.Channel, bridgeDomain uint32, swIfId uint32) error {
+func RemoveBridgeInterface(ch api.Channel, bridgeDomain uint32, swIfId interface_types.InterfaceIndex) error {
 
 	// Populate the Request Structure
 	req := &l2.SwInterfaceSetL2Bridge{
@@ -145,7 +144,7 @@ func RemoveBridgeInterface(ch api.Channel, bridgeDomain uint32, swIfId uint32) e
 		RxSwIfIndex: swIfId,
 		Shg:         0,
 		PortType:    l2.L2_API_PORT_TYPE_NORMAL,
-		Enable:      0,
+		Enable:      false,
 	}
 
 	reply := &l2.SwInterfaceSetL2BridgeReply{}
@@ -183,7 +182,7 @@ func DumpBridge(ch api.Channel, bridgeDomain uint32) {
 	err := ch.SendRequest(req).ReceiveReply(reply)
 
 	if err == nil {
-		fmt.Printf("    Bridge Domain %d: Fld=%d UuFld=%d Fwd=%d Lrn=%d Arp=%d Mac=%d Bvi=%d NSwId=%d BdTag=%s\n",
+		fmt.Printf("    Bridge Domain %v: Fld=%v UuFld=%v Fwd=%v Lrn=%v Arp=%v Mac=%d Bvi=%d NSwId=%d BdTag=%s\n",
 			bridgeDomain,
 			reply.Flood,
 			reply.UuFlood,
@@ -213,7 +212,8 @@ func DumpBridge(ch api.Channel, bridgeDomain uint32) {
 
 // Determine if the input Bridge exists.
 // Return: true - Exists  false - otherwise
-//         uint32 - Number of associated interfaces
+//
+//	uint32 - Number of associated interfaces
 func findBridge(ch api.Channel, bridgeDomain uint32) (bool, uint32) {
 	var rval bool = false
 	var count uint32
