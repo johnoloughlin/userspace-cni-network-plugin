@@ -45,7 +45,7 @@ jobs:
   go-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: remove deployer container from dockerfile
       run: sed -ie '/End of builder/,+5d' ./docker/userspacecni/Dockerfile
     - name: Build the Docker image
@@ -54,14 +54,14 @@ jobs:
       run: docker run --name userspacecni -itd userspacecni:latest bash
     - name: docker copy generated files out
       run: docker cp userspacecni:/root/userspace-cni-network-plugin/cnivpp ./
-
-    - uses: actions/checkout@v3
-
+    - name: ls files on host
+      run: ls ./cnivpp
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.20.x
-
+    - name: ls files on host
+      run: ls ./cnivpp
     # if this fails, run go mod tidy
     - name: Check if module files are consistent with code
       run: go mod tidy && git diff --exit-code
