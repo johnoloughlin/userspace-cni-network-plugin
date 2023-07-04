@@ -1,7 +1,17 @@
 name: Go-static-analysis
 on: [push, pull_request]
 jobs:
-
+  hugepages:
+    name: hugepages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: check hugepages
+        run: grep Huge /proc/meminfo
+      - name: enable hugepages
+        run: sysctl -w vm.nr_hugepages=102400
+      - name: check hugepages
+        run: grep Huge /proc/meminfo    
   dockerbuildimage:
     name: build
     runs-on: ubuntu-latest
